@@ -1555,7 +1555,11 @@ function generateTurtleModule(_target) {
             // output in the console
             // console.log(title);
             // OR change the page title
-            document.title = title;
+            if(Sk.TurtleGraphics && Sk.TurtleGraphics.title) {
+                Sk.TurtleGraphics.title(title);
+            } else {
+                document.title = title;
+            }
         }
         proto.$title.minArgs = 1;
         proto.$title.co_varnames = ['title'];
