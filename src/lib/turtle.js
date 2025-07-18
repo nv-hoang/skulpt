@@ -1068,7 +1068,51 @@ function generateTurtleModule(_target) {
         };
         proto.$shape.minArgs     = 0;
         proto.$shape.co_varnames = ["name"];
-        
+
+        proto.$shapesize = function(stretch_wid, stretch_len, outline) {
+            // Initialize if needed
+            if (!this._shapesize) {
+                this._shapesize = {
+                    stretch_wid: 1,
+                    stretch_len: 1,
+                    outline: 1
+                };
+            }
+
+            // GET mode (no args)
+            if (stretch_wid === undefined && stretch_len === undefined && outline === undefined) {
+                return new Sk.builtin.tuple([
+                    new Sk.builtin.float_(this._shapesize.stretch_wid),
+                    new Sk.builtin.float_(this._shapesize.stretch_len),
+                    new Sk.builtin.float_(this._shapesize.outline)
+                ]);
+            }
+
+            // SET mode
+            if (stretch_wid !== undefined) {
+                this._shapesize.stretch_wid = Sk.builtin.asnum$(stretch_wid);
+            }
+            if (stretch_len !== undefined) {
+                this._shapesize.stretch_len = Sk.builtin.asnum$(stretch_len);
+            }
+            if (outline !== undefined) {
+                this._shapesize.outline = Sk.builtin.asnum$(outline);
+            }
+
+            // Trigger visual update
+            return this.addUpdate(undefined, this._shown, {
+                shapesize: {
+                    stretch_wid: this._shapesize.stretch_wid,
+                    stretch_len: this._shapesize.stretch_len,
+                    outline: this._shapesize.outline
+                }
+            });
+        };
+
+        // Metadata for arg names & defaulting
+        proto.$shapesize.minArgs = 0;
+        proto.$shapesize.maxArgs = 3;
+        proto.$shapesize.co_varnames = ["stretch_wid", "stretch_len", "outline"];
 
         proto.$window_width = function() {
             return this._screen.$window_width();
@@ -1825,14 +1869,30 @@ function generateTurtleModule(_target) {
             context.drawImage(shape, 0, 0, iw, ih, -iw/2, -ih/2, iw, ih);
         }
         else {
+            // Apply proto.$shapesize
+            const stretch = state.shapesize || { stretch_wid: 1, stretch_len: 1, outline: 1 };
+            const sx = stretch.stretch_wid;
+            const sy = stretch.stretch_len;
+            // =====
+
             context.rotate(bearing);
             context.beginPath();
-            context.lineWidth   = 1;
+            
+            // context.lineWidth   = 1;
+            // Apply proto.$shapesize
+            context.lineWidth   = stretch.outline || 1;
+
             context.strokeStyle = state.color;
             context.fillStyle   = state.fill;
-            context.moveTo(-shape[0][0], shape[0][1]);
+
+            // context.moveTo(-shape[0][0], shape[0][1]);
+            // Apply proto.$shapesize
+            context.moveTo(-shape[0][0] * sx, shape[0][1] * sy);
+
             for(var i = 1; i < shape.length; i++) {
-                context.lineTo(-shape[i][0], shape[i][1]);
+                // context.lineTo(-shape[i][0], shape[i][1]);
+                // Apply proto.$shapesize
+                context.lineTo(-shape[i][0] * sx, shape[i][1] * sy);
             }
             context.closePath();
             context.fill();
