@@ -1633,6 +1633,12 @@ function generateTurtleModule(_target) {
         proto.$onkey.minArgs = 2;
         proto.$onkey.co_varnames = ["method", "keyValue"]
 
+        proto.$onkeypress = function(method, keyValue) {
+            this.$onkey(method, keyValue);
+        };
+        proto.$onkeypress.minArgs = 2;
+        proto.$onkeypress.co_varnames = ["method", "keyValue"];
+
         proto.$onscreenclick = function(method, btn, add) {
             this.getManager("mousedown").addHandler(method, add);
         };
